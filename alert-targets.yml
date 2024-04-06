@@ -1,0 +1,28 @@
+alertmanager:
+  config:
+    global:
+      resolve_timeout: 1m
+      slack_api_url: '${SLACK_API_URL}' #TODO: Enter your Slack Webhook URL here
+
+    receivers:
+    - name: 'notifications'
+      email_configs:
+      - to: example@gmail.com 
+        from: ${ALERT_EMAIL_ADDRESS}
+        smarthost: smtp.gmail.com:587
+        auth_username: ${ALERT_EMAIL_ADDRESS}
+        auth_identity: ${ALERT_EMAIL_ADDRESS}
+        auth_password: ${ALERT_EMAIL_PASSWORD}
+        send_resolved: true
+        headers:
+          subject: " Prometheus -  Alert  "
+        text: "{{ range .Alerts }} Hi, \n{{ .Annotations.summary }}  \n {{ .Annotations.description }} {{end}} "
+      slack_configs:
+      - channel: '#upcommerce-devs'
+        send_resolved: true
+
+    route:
+      group_wait: 10s
+      group_interval: 2m
+      receiver: 'notifications'
+      repeat_interval: 2m
